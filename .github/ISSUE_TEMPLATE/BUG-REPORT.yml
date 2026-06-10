@@ -1,4 +1,4 @@
-name: 🐛 Giga Bug
+name: 🐛 Document Updater Bug
 description: Template for reporting bugs
 body:
   - type: dropdown
@@ -7,9 +7,6 @@ body:
       label: Version
       options:
         - v1
-        - v2
-        - v3
-        - v4
   - type: dropdown
     id: severity
     attributes:
