@@ -8,19 +8,24 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.openqa.selenium.interactions.Actions;
+
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.PageLoadStrategy;
+
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 
 import java.time.Duration;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StepDefinitions {
 
-    private final WebDriver driver = new FirefoxDriver();
+    FirefoxOptions options = new FirefoxOptions().setPageLoadStrategy(PageLoadStrategy.EAGER);
+//  Code above ^, was found by Liam, this fixed the delay issue on M1 chipsets and M1 is the potential issue.
+    private final WebDriver driver = new FirefoxDriver(options);
     //private final WebDriver driver = new ChromeDriver();
 
     @Given("I am on the Makers FAQ page")
@@ -53,7 +58,7 @@ public class StepDefinitions {
 //        Object[] windowHandles=driver.getWindowHandles().toArray();
 //        driver.switchTo().window((String) windowHandles[1]);
 
-        //Firefox
+        //Firefox - Old code
 //        new Actions(driver).scrollByAmount(0, 2500).perform();
 //        Thread.sleep(2000);
 //        WebElement faq = driver.findElement(By.linkText("FAQ"));
@@ -72,14 +77,27 @@ public class StepDefinitions {
 
 
 //        Main Script
-        WebElement faq = driver.findElement(By.linkText("FAQ"));
-//        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", faq);
-        ((JavascriptExecutor) driver).executeScript("javascript:window.scrollBy(250,350)");
+        WebElement link = driver.findElement(By.partialLinkText(linkText));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", link);
+
+//        Manual scroll for testing
+//        ((JavascriptExecutor) driver).executeScript("javascript:window.scrollBy(250,350)");
+
         Thread.sleep(2000);
-        faq.click();
+        link.click();
         Thread.sleep(2000);
+
+//        FAQ new tab window swap
+//        Object[] windowHandles=driver.getWindowHandles().toArray();
+//        driver.switchTo().window((String) windowHandles[1]);
+
+//        Caved in... following 5 lines is thanks to ChatGPT
         Object[] windowHandles=driver.getWindowHandles().toArray();
-        driver.switchTo().window((String) windowHandles[1]);
+        if (windowHandles.length > 1) {
+            driver.switchTo().window((String) windowHandles[1]);
+        } else {
+            System.out.println("Staying in the same tab for: " + linkText);
+        }
     }
 
     @Then("the results page should display results for this term")
@@ -106,6 +124,12 @@ public class StepDefinitions {
         String currentUrl = driver.getCurrentUrl();
 //        System.out.println(currentUrl);
         assertTrue(currentUrl.contains("faq.makers.tech"));
+    }
+
+    @Then("I should be on a page containing {string}")
+    public void iShouldBeOnPage(String expectedUrlPart) {
+        String currentUrl = driver.getCurrentUrl();
+        assertTrue(currentUrl.contains(expectedUrlPart));
     }
 
     @After
