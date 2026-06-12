@@ -14,5 +14,5 @@ Feature: Homepage
       | link_name       |         expected_url      |
       | FAQ             |         faq.makers.tech   |
       | Academy         |         academy           |
-      | Apprenticeships |         makers.tech/learn/apprenticeships   |
+      | Apprenticeships |         apprenticeships   |
       | Reviews         |         coursereport      |
